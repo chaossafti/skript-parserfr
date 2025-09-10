@@ -4,7 +4,6 @@ import de.safti.skparser.SkriptParser;
 import de.safti.skparser.runtime.TriggerContext;
 import de.safti.skparser.syntaxes.ElementMetadata;
 import de.safti.skparser.syntaxes.SyntaxHandler;
-import de.safti.skparser.syntaxes.building.SyntaxInitHandler;
 import de.safti.skparser.types.Type;
 
 public interface ExpressionHandler<T> extends SyntaxHandler {

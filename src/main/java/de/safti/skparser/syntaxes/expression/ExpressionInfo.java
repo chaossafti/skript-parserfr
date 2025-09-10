@@ -2,7 +2,6 @@ package de.safti.skparser.syntaxes.expression;
 
 import de.safti.skparser.pattern.SyntaxPattern;
 import de.safti.skparser.syntaxes.SyntaxInfo;
-import org.jetbrains.annotations.NotNull;
 
 public record ExpressionInfo(int priority, SyntaxPattern pattern, ExpressionHandler<?> handler) implements SyntaxInfo {
 

@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TypeManager {
-    private Map<Class<?>, Type> types = new HashMap<>();
+    private final Map<Class<?>, Type> types = new HashMap<>();
 
     public TypeManager() {
     }

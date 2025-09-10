@@ -69,6 +69,7 @@ public class SyntaxPattern {
         }
 
         if(root.getClass().isAssignableFrom(nodeType)) {
+            //noinspection unchecked
             return List.of((N) root);
         }
 

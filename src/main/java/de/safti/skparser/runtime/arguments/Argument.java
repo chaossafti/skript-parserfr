@@ -17,6 +17,7 @@ public class Argument<T> {
         SyntaxInfo info = expression.getInfo();
         if(!(info instanceof ExpressionInfo expressionInfo)) throw new IllegalArgumentException("Got non-expression syntax passed into Argument!");
 
+        //noinspection unchecked
         return (T) expressionInfo.handler().evaluate(context, metadata);
     }
 
@@ -24,6 +25,7 @@ public class Argument<T> {
         SyntaxInfo info = expression.getInfo();
         if(!(info instanceof ExpressionInfo expressionInfo)) throw new IllegalArgumentException("Got non-expression syntax passed into Argument!");
 
+        //noinspection unchecked
         return (T[]) expressionInfo.handler().evaluateAll(context, metadata);
     }
 

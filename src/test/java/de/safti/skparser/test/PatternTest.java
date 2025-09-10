@@ -3,7 +3,6 @@ package de.safti.skparser.test;
 import de.safti.skparser.SkriptParser;
 import de.safti.skparser.pattern.SyntaxPattern;
 import de.safti.skparser.pattern.match.SyntaxMatchResult;
-import de.safti.skparser.utils.PrettyPrinter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

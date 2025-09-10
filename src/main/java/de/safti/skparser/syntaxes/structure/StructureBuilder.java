@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 
 public class StructureBuilder {
-    public static int DEFAULT_STRUCTURE_PRIORITY = 5000;
+    public static final int DEFAULT_STRUCTURE_PRIORITY = 5000;
 
     private SyntaxPattern syntaxPattern;
     private int priority = DEFAULT_STRUCTURE_PRIORITY;

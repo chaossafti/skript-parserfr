@@ -8,9 +8,6 @@ import de.safti.skparser.runtime.TriggerContext;
 import de.safti.skparser.syntaxes.ElementMetadata;
 import de.safti.skparser.syntaxes.expression.ExpressionHandler;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 public class ExprStringLiteral implements ExpressionHandler<String> {
     // "(?:[^"\\]|\\.)*"
     // matches "anything in quotation marks \" may be escaped using a backslash"

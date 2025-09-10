@@ -1,6 +1,5 @@
 package de.safti.skparser;
 
-import de.safti.skparser.bootstrap.SyntaxLoader;
 import de.safti.skparser.logging.SkriptLogger;
 import de.safti.skparser.logging.errors.CodeOutsideOfTriggerError;
 import de.safti.skparser.logging.errors.IllegalIndentionError;

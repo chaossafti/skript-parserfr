@@ -2,8 +2,6 @@ package de.safti.skparser.pattern.nodes;
 
 import de.safti.skparser.SkriptParser;
 import de.safti.skparser.logging.SkriptLogger;
-import de.safti.skparser.logging.errors.ExpectedExpressionError;
-import de.safti.skparser.logging.errors.IllegalTypeError;
 import de.safti.skparser.pattern.PatternNode;
 import de.safti.skparser.pattern.TypeMatchNode;
 import de.safti.skparser.pattern.match.MatchContext;

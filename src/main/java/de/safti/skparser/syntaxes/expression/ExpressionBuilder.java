@@ -7,7 +7,6 @@ import de.safti.skparser.pattern.SyntaxPattern;
 import de.safti.skparser.pattern.match.MatchContext;
 import de.safti.skparser.runtime.TriggerContext;
 import de.safti.skparser.syntaxes.ElementMetadata;
-import de.safti.skparser.syntaxes.SyntaxInfo;
 import de.safti.skparser.syntaxes.building.SyntaxInitHandler;
 import org.jetbrains.annotations.Contract;
 

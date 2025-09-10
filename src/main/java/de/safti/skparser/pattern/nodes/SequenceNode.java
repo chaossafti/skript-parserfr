@@ -28,14 +28,6 @@ public class SequenceNode implements PatternNode {
             working = res.getContext();
         }
 
-        /*
-         * "something"
-         * ["asdasd"]
-         * "something"
-         * -> don't parse any white spaces
-         * -> instead, each node must be separated by a white space
-         *
-         */
         return SyntaxMatchResult.success(remaining, working);
     }
 

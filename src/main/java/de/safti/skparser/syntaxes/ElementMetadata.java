@@ -7,7 +7,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.function.Supplier;
 
 public class ElementMetadata {
 
@@ -152,24 +151,28 @@ public class ElementMetadata {
     @Nullable
     public <T> T evaluateArgument(int index, @NotNull TriggerContext context) {
         Argument<?> arg = getArgumentOrThrow(index);
+        //noinspection unchecked
         return (T) arg.evaluate(context, arg.getExpression().getMetadata());
     }
 
     @Nullable
     public <T> T[] evaluateAllArgument(int index, @NotNull TriggerContext context) {
         Argument<?> arg = getArgumentOrThrow(index);
+        //noinspection unchecked
         return (T[]) arg.evaluateAll(context, arg.getExpression().getMetadata());
     }
 
     @Nullable
     public <T> T evaluateArgument(int index, @NotNull TriggerContext context, Class<T> ignored) {
         Argument<?> arg = getArgumentOrThrow(index);
+        //noinspection unchecked
         return (T) arg.evaluate(context, arg.getExpression().getMetadata());
     }
 
     @Nullable
     public <T> T[] evaluateAllArgument(int index, @NotNull TriggerContext context, Class<T> ignored) {
         Argument<?> arg = getArgumentOrThrow(index);
+        //noinspection unchecked
         return (T[]) arg.evaluateAll(context, arg.getExpression().getMetadata());
     }
 

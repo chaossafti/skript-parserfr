@@ -35,9 +35,7 @@ public class StandardSkript {
 
         EffectInfo.builder()
                 .pattern("print %string%")
-                .initHandler((context, logger, metadata) -> {
-                    return true;
-                })
+                .initHandler((context, logger, metadata) -> true)
                 .effectExecuteHandler((context, metadata) -> System.out.println(metadata.evaluateArgument(0, context, String.class)))
                 .register(loader);
 

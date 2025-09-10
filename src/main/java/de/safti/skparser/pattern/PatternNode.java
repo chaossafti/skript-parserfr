@@ -21,7 +21,7 @@ public interface PatternNode {
      * @param startIndex the current index in the input
      * @param matches    list to collect matched TypeNodes
      * @param context    match context
-     * @param logger
+     * @param logger     The logger to log things to
      * @return the index after this node matched, or -1 if the match failed
      */
     int matchAndCollectTypes(@NotNull String input, int startIndex,
