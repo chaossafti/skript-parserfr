@@ -1,22 +1,22 @@
 package de.safti.skparser.pattern.match;
 
-public class MatchResult {
+public class SyntaxMatchResult {
     private final boolean success;
     private final String remaining;
     private final MatchContext ctx;
 
-    private MatchResult(boolean success, String remaining, MatchContext ctx) {
+    private SyntaxMatchResult(boolean success, String remaining, MatchContext ctx) {
         this.success = success;
         this.remaining = remaining;
         this.ctx = ctx;
     }
 
-    public static MatchResult success(String remaining, MatchContext ctx) {
-        return new MatchResult(true, remaining, ctx);
+    public static SyntaxMatchResult success(String remaining, MatchContext ctx) {
+        return new SyntaxMatchResult(true, remaining, ctx);
     }
 
-    public static MatchResult failure() {
-        return new MatchResult(false, null, null);
+    public static SyntaxMatchResult failure() {
+        return new SyntaxMatchResult(false, null, null);
     }
 
     public boolean isSuccess() { return success; }

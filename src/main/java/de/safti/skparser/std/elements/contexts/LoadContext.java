@@ -1,4 +1,9 @@
 package de.safti.skparser.std.elements.contexts;
 
-public class LoadContext {
+import de.safti.skparser.runtime.TriggerContext;
+
+public class LoadContext implements TriggerContext {
+
+
+
 }

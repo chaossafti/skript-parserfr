@@ -1,4 +1,8 @@
 package de.safti.skparser.types;
 
-public class Type {
+import de.safti.skparser.pattern.SyntaxPattern;
+
+public record Type(String codeName, SyntaxPattern pattern, Class<?> clazz) {
+
+
 }
