@@ -8,6 +8,7 @@ import de.safti.skparser.pattern.match.MatchContext;
 import de.safti.skparser.runtime.TriggerContext;
 import de.safti.skparser.syntaxes.ElementMetadata;
 import de.safti.skparser.syntaxes.building.SyntaxInitHandler;
+import de.safti.skparser.syntaxes.parsed.SyntaxElement;
 import org.jetbrains.annotations.Contract;
 
 import java.util.Objects;
@@ -77,7 +78,7 @@ public class ExpressionBuilder<T> {
         Objects.requireNonNull(pattern, "Pattern must not be null");
 
         final SyntaxInitHandler finalSyntaxInitHandler;
-        finalSyntaxInitHandler = Objects.requireNonNullElseGet(this.syntaxInitHandler, () -> (a, b, c) -> true);
+        finalSyntaxInitHandler = Objects.requireNonNullElseGet(this.syntaxInitHandler, () -> (a, b, c, d) -> true);
 
 
         // Wrap the final handler if not provided
@@ -90,8 +91,8 @@ public class ExpressionBuilder<T> {
             finalHandler = new ExpressionHandler<>() {
 
                 @Override
-                public boolean init(MatchContext context, SkriptLogger logger, ElementMetadata metadata) {
-                    return finalSyntaxInitHandler.init(context, logger, metadata);
+                public boolean init(MatchContext context, SkriptLogger logger, SyntaxElement element, ElementMetadata metadata) {
+                    return finalSyntaxInitHandler.init(context, logger, element, element.getMetadata());
                 }
 
                 @Override

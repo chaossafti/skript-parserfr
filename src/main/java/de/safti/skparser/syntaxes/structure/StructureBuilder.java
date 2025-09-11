@@ -76,10 +76,10 @@ public class StructureBuilder {
         if (finalHandler == null) {
             if (initHandler != null) {
                 // Wrap SyntaxInitHandler in a StructureHandler
-                finalHandler = (context, logger, metadata) -> initHandler.init(context, logger, metadata);
+                finalHandler = (context, logger, element, metadata) -> initHandler.init(context, logger, element, element.getMetadata());
             } else {
                 // fallback empty handler
-                finalHandler = (context, logger, metadata) -> true;
+                finalHandler = (context, logger, element, metadata) -> true;
             }
         }
 

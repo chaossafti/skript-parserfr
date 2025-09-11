@@ -16,12 +16,14 @@ import java.util.List;
 public class SyntaxElement {
     private final String raw;
     private final SyntaxInfo info;
+    private final SkriptParser parser;
     protected final ElementMetadata metadata;
 
 
     public SyntaxElement(String raw, SyntaxInfo info, SkriptParser parser, SkriptLogger logger) {
         this.raw = raw;
         this.info = info;
+        this.parser = parser;
 
 
         SyntaxPattern pattern = info.pattern();
@@ -46,6 +48,10 @@ public class SyntaxElement {
 
 
         metadata = new ElementMetadata(arguments, raw);
+    }
+
+    public SkriptParser getParser() {
+        return parser;
     }
 
     @NotNull

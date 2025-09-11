@@ -5,8 +5,10 @@ import de.safti.skparser.syntaxes.ElementMetadata;
 import de.safti.skparser.syntaxes.SyntaxHandler;
 import de.safti.skparser.syntaxes.SyntaxInfo;
 import de.safti.skparser.syntaxes.effects.EffectInfo;
+import de.safti.skparser.syntaxes.event.EventStructureElement;
 import de.safti.skparser.syntaxes.parsed.StructureElement;
 import de.safti.skparser.syntaxes.parsed.SyntaxElement;
+import org.jetbrains.annotations.MustBeInvokedByOverriders;
 
 import java.util.List;
 
@@ -25,7 +27,13 @@ public interface StructureHandler extends SyntaxHandler {
 
     }
 
+    @Override
+    @MustBeInvokedByOverriders
+    default void unload(SyntaxElement element) {
+        StructureElement structureElement = (EventStructureElement) element;
+        for (SyntaxElement childElement : structureElement.getBody()) {
+            childElement.getInfo().handler().unload(childElement);
+        }
 
-
-
+    }
 }

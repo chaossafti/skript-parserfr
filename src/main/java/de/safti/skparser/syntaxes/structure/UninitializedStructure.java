@@ -3,6 +3,9 @@ package de.safti.skparser.syntaxes.structure;
 import de.safti.skparser.SkriptParser;
 import de.safti.skparser.logging.SkriptLogger;
 import de.safti.skparser.pattern.match.MatchContext;
+import de.safti.skparser.syntaxes.ElementMetadata;
+import de.safti.skparser.syntaxes.event.EventInfo;
+import de.safti.skparser.syntaxes.event.EventStructureElement;
 import de.safti.skparser.syntaxes.parsed.StructureElement;
 import de.safti.skparser.syntaxes.parsed.SyntaxElement;
 import org.jetbrains.annotations.Nullable;
@@ -31,8 +34,14 @@ public class UninitializedStructure {
 
     @Nullable
     public StructureElement initialize(SkriptParser parser, MatchContext context, SkriptLogger logger) {
-        StructureElement element = new StructureElement(raw, info, body, parser, logger);
-        boolean success =  info.handler().init(context, logger, element.getMetadata());
+        StructureElement element;
+        if(info instanceof EventInfo eventInfo) {
+            element = new EventStructureElement(raw, eventInfo, body, parser, logger);
+        } else {
+            element = new StructureElement(raw, info, body, parser, logger);
+        }
+
+        boolean success =  info.handler().init(context, logger, element, element.getMetadata());
         if(!success) return null;
 
         return element;

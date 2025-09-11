@@ -1,11 +1,13 @@
 package de.safti.skparser;
 
+import de.safti.skparser.events.SkriptEventManager;
 import de.safti.skparser.logging.SkriptLogger;
 import de.safti.skparser.logging.errors.CodeOutsideOfTriggerError;
 import de.safti.skparser.logging.errors.IllegalIndentionError;
 import de.safti.skparser.logging.errors.UnknownSyntaxError;
 import de.safti.skparser.pattern.match.SyntaxMatchResult;
 import de.safti.skparser.runtime.TriggerContext;
+import de.safti.skparser.std.TestContext;
 import de.safti.skparser.std.elements.contexts.LoadContext;
 import de.safti.skparser.syntaxes.SyntaxInfo;
 import de.safti.skparser.syntaxes.SyntaxManager;
@@ -31,6 +33,7 @@ public class SkriptParser {
     private final ConcurrentMap<Path, Script> loadedScripts = new ConcurrentHashMap<>();
     private final SyntaxManager syntaxManager;
     private final TypeManager typeManager;
+    private final SkriptEventManager eventManager = new SkriptEventManager();
 
     public SkriptParser(SyntaxManager syntaxManager, TypeManager typeManager) {
         this.syntaxManager = syntaxManager;
@@ -58,6 +61,9 @@ public class SkriptParser {
                         TriggerContext context = new LoadContext();
                         structureElement.walk(context);
                     });
+
+            // TEST
+            eventManager.call(new TestContext());
 
             loadedScripts.put(path, script);
             return script;
@@ -152,7 +158,11 @@ public class SkriptParser {
 
         // initialize structure
         UninitializedStructure struct = new UninitializedStructure(raw, parseResult.structure(), elements);
-        return struct.initialize(this, parseResult.syntaxMatchResult().getContext(), logger);
+        try {
+            return struct.initialize(this, parseResult.syntaxMatchResult().getContext(), logger);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize structure: " + raw, e);
+        }
     }
 
     // --------------------------
@@ -202,7 +212,7 @@ public class SkriptParser {
 
         // initialize the element
         SyntaxElement element = new SyntaxElement(raw, elementInfo, this, logger);
-        boolean success = elementInfo.handler().init(matchResult.getContext(), logger, element.getMetadata());
+        boolean success = elementInfo.handler().init(matchResult.getContext(), logger, element, element.getMetadata());
         if(!success) return null;
 
         return element;
@@ -236,5 +246,9 @@ public class SkriptParser {
 
     public TypeManager getTypeManager() {
         return typeManager;
+    }
+
+    public SkriptEventManager getEventManager() {
+        return eventManager;
     }
 }

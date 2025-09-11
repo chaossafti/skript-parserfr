@@ -7,6 +7,7 @@ import de.safti.skparser.pattern.match.MatchContext;
 import de.safti.skparser.runtime.TriggerContext;
 import de.safti.skparser.syntaxes.ElementMetadata;
 import de.safti.skparser.syntaxes.expression.ExpressionHandler;
+import de.safti.skparser.syntaxes.parsed.SyntaxElement;
 
 public class ExprStringLiteral implements ExpressionHandler<String> {
     // "(?:[^"\\]|\\.)*"
@@ -19,7 +20,7 @@ public class ExprStringLiteral implements ExpressionHandler<String> {
 
 
     @Override
-    public boolean init(MatchContext context, SkriptLogger logger, ElementMetadata metadata) {
+    public boolean init(MatchContext context, SkriptLogger logger, SyntaxElement element, ElementMetadata metadata) {
         String string = context.getMatchAt(0);
         string = string.substring(1, string.length() - 1);
 

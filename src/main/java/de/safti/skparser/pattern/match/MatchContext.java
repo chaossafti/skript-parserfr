@@ -8,9 +8,21 @@ import java.util.List;
 public class MatchContext {
     private final List<String> regexMatches = new ArrayList<>();
     private final SkriptParser parser;
+    private final boolean isRoot;
+    private final String input;
 
-    public MatchContext(SkriptParser parser) {
+    public MatchContext(SkriptParser parser, boolean isRoot, String input) {
         this.parser = parser;
+        this.isRoot = isRoot;
+        this.input = input;
+    }
+
+    public String getInput() {
+        return input;
+    }
+
+    public boolean isRoot() {
+        return isRoot;
     }
 
     public void pushRegexMatch(String regex) {
@@ -25,8 +37,9 @@ public class MatchContext {
         return regexMatches.get(index);
     }
 
+
     public MatchContext copy() {
-        return new MatchContext(parser);
+        return new MatchContext(parser, isRoot, input);
     }
 
     public SkriptParser getParser() {

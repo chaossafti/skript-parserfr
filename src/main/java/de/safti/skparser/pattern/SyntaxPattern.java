@@ -32,20 +32,24 @@ public class SyntaxPattern {
     }
 
     public boolean matches(String input, SkriptParser parser) {
+        boolean isRoot = !input.startsWith("\t") && !input.startsWith("    ");
         input = input.strip(); // remove leading/trailing spaces
-        SyntaxMatchResult result = root.matches(input, new MatchContext(parser));
+        SyntaxMatchResult result = root.matches(input, new MatchContext(parser, isRoot, input));
         // ignore leftover whitespace
         return result.isSuccess() && result.getRemaining().isBlank();
     }
 
     public SyntaxMatchResult matchDetailed(String input, SkriptParser parser) {
-        return root.matches(input, new MatchContext(parser));
+        boolean isRoot = !input.startsWith("\t") && !input.startsWith("    ");
+        return root.matches(input, new MatchContext(parser, isRoot, input));
     }
 
     public List<TypeMatchNode> extractTypeMatches(@NotNull String input, @NotNull SkriptParser parser, SkriptLogger logger) {
+        boolean isRoot = !input.startsWith("\t") && !input.startsWith("    ");
+
         input = input.strip(); // remove leading/trailing spaces
         List<TypeMatchNode> matches = new ArrayList<>();
-        MatchContext context = new MatchContext(parser);
+        MatchContext context = new MatchContext(parser, isRoot, input);
 
         // Walk the root node recursively
         root.matchAndCollectTypes(input, 0, matches, context, logger);

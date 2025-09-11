@@ -8,6 +8,7 @@ import de.safti.skparser.pattern.match.MatchContext;
 import de.safti.skparser.runtime.TriggerContext;
 import de.safti.skparser.syntaxes.ElementMetadata;
 import de.safti.skparser.syntaxes.building.SyntaxInitHandler;
+import de.safti.skparser.syntaxes.parsed.SyntaxElement;
 
 public class EffectBuilder {
 
@@ -65,7 +66,7 @@ public class EffectBuilder {
         // Ensure the final handler is never null
         final SyntaxInitHandler finalInitHandler;
 
-        if (this.initHandler == null) finalInitHandler = (matchContext, logger, metadata) -> true;
+        if (this.initHandler == null) finalInitHandler = (matchContext, logger, element, metadata) -> true;
         else finalInitHandler = this.initHandler;
 
         EffectHandler effectHandler = this.effectHandler;
@@ -81,8 +82,8 @@ public class EffectBuilder {
                 }
 
                 @Override
-                public boolean init(MatchContext context, SkriptLogger logger, ElementMetadata metadata) {
-                    return finalInitHandler.init(context, logger, metadata);
+                public boolean init(MatchContext context, SkriptLogger logger, SyntaxElement element, ElementMetadata metadata) {
+                    return finalInitHandler.init(context, logger, element, metadata);
                 }
             };
         }
