@@ -11,11 +11,13 @@ Skript is an open source bukkit plugin that was created a long time ago. As of w
 - [x] Expressions
 - [x] Events
 - [x] Logging
-- [ ] Events
+- [x] Events
+- [ ] Event Values
 - [ ] Conditionals
 - [ ] Variables
 - [ ] Expansion of standard elements
 - [ ] functions
+- [ ] Give syntaxes ids
 
 # How to use
 Copy the source code and edit it as you like. Wiki page coming soon™
