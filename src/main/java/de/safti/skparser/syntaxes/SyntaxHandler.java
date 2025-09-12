@@ -11,7 +11,4 @@ public interface SyntaxHandler {
     default void unload(SyntaxElement element) {
         // noop by default
     }
-
-    // TODO: debug to string
-
 }

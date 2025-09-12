@@ -36,17 +36,13 @@ public class TypeNode implements PatternNode {
             return SyntaxMatchResult.failure();
         }
 
-        // extract non-null type
+        // extract non-null givenType
         ExpressionHandler<?> handler = expressionInfo.handler();
-        // FIXME: print expects string, but we offer it an object
-        // 2 changes:
-        //  - make print take object
-        //  - make this parse safe somehow
-        Type type = handler.type(parser, ctx.getInput());
+        Type givenType = handler.type(parser, ctx.getInput());
         // sanity check
-        if(type == null) return SyntaxMatchResult.failure();
+        if(givenType == null) return SyntaxMatchResult.failure();
 
-        if(type.codeName().equals(expectedTypeName)) {
+        if(givenType.isAssignableTo(parser, expectedTypeName)) {
             return SyntaxMatchResult.success("", ctx);
         }
 

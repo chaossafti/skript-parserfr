@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-// TODO: events, conditionals
 public class SyntaxManager {
     // all of these fields should be immutable
     private final List<StructureInfo> structures;

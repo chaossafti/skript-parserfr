@@ -1,2 +1,2 @@
 on load:
-	print event-string
+	print "thing"

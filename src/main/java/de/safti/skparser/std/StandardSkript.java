@@ -46,10 +46,10 @@ public class StandardSkript {
          */
 
         EffectInfo.builder()
-                .pattern("print %string%")
+                .pattern("print %object%")
                 .initHandler((context, logger, element, metadata) -> true)
                 .effectExecuteHandler((context, metadata) -> {
-                    System.out.println(metadata.evaluateArgument(0, context, String.class));
+                    System.out.println(metadata.evaluateArgument(0, context, Object.class));
                 })
                 .register(loader);
 
