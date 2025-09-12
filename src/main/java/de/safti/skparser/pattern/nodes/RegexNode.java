@@ -5,6 +5,7 @@ import de.safti.skparser.pattern.PatternNode;
 import de.safti.skparser.pattern.TypeMatchNode;
 import de.safti.skparser.pattern.match.MatchContext;
 import de.safti.skparser.pattern.match.SyntaxMatchResult;
+import de.safti.skparser.syntaxes.parsed.SyntaxElement;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -38,7 +39,7 @@ public class RegexNode implements PatternNode {
     @Override
     public int matchAndCollectTypes(@NotNull String input, int startIndex,
                                     @NotNull List<TypeMatchNode> matches,
-                                    @NotNull MatchContext context, SkriptLogger logger) {
+                                    @NotNull MatchContext context, SkriptLogger logger, SyntaxElement argumentHolder) {
         Matcher matcher = regex.matcher(input);
         matcher.region(startIndex, input.length());
         if (matcher.lookingAt()) {

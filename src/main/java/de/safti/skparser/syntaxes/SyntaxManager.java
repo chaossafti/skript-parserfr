@@ -4,24 +4,25 @@ import de.safti.skparser.SkriptParser;
 import de.safti.skparser.bootstrap.SyntaxLoader;
 import de.safti.skparser.pattern.SyntaxPattern;
 import de.safti.skparser.pattern.match.SyntaxMatchResult;
-import de.safti.skparser.syntaxes.expression.ExpressionHandler;
+import de.safti.skparser.syntaxes.event.EventValue;
 import de.safti.skparser.syntaxes.structure.StructureInfo;
-import de.safti.skparser.types.TypeManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 // TODO: events, conditionals
 public class SyntaxManager {
     // all of these fields should be immutable
     private final List<StructureInfo> structures;
     private final List<SyntaxInfo> elements;
+    private final Map<String, EventValue<?, ?>> eventValues;
 
-    public SyntaxManager(SyntaxLoader syntaxLoader, TypeManager typeManager) {
+    public SyntaxManager(SyntaxLoader syntaxLoader) {
+        this.eventValues = Map.copyOf(syntaxLoader.getEventValues());
+
         // structures
         List<StructureInfo> unsortedStructures = new ArrayList<>(syntaxLoader.getStructures());
         unsortedStructures.sort(SyntaxInfo::compareTo);
@@ -31,31 +32,31 @@ public class SyntaxManager {
         List<SyntaxInfo> unsortedElements = new ArrayList<>(syntaxLoader.getElements());
         unsortedElements.sort(SyntaxInfo::compareTo);
         elements = List.copyOf(unsortedElements);
-
-        // see if any expressions return a type class that doesn't have a registered type.
-        Map<Class<?>, List<SyntaxInfo>> unregisteredTypesMap = elements.stream()
-                .filter(syntaxInfo -> syntaxInfo.handler() instanceof ExpressionHandler<?>)
-                .collect(Collectors.groupingBy(
-                        info -> ((ExpressionHandler<?>) info.handler()).typeClass(),
-                        Collectors.toList()
-                ));
-
-        Map<Class<?>, List<SyntaxInfo>> unregisteredTypeClasses = unregisteredTypesMap.entrySet().stream()
-                .filter(e -> typeManager.getTypeByClass(e.getKey()) == null)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-        if (!unregisteredTypeClasses.isEmpty()) {
-            // found unregistered type; throw an exception
-            StringBuilder sb = new StringBuilder("not all used types have been registered!\n");
-            unregisteredTypeClasses.forEach((clazz, infos) -> {
-                sb.append(clazz.getName()).append(" used by: ")
-                        .append(infos.stream()
-                                .map(Object::toString) // or customize how SyntaxInfo is represented
-                                .collect(Collectors.joining(", ")))
-                        .append("\n");
-            });
-            throw new IllegalStateException(sb.toString());
-        }
+// //TODO: move to SkriptParser
+         //see if any expressions return a type class that doesn't have a registered type.
+//        Map<Class<?>, List<SyntaxInfo>> unregisteredTypesMap = elements.stream()
+//                .filter(syntaxInfo -> syntaxInfo.handler() instanceof ExpressionHandler<?>)
+//                .collect(Collectors.groupingBy(
+//                        info -> ((ExpressionHandler<?>) info.handler()).typeClass(),
+//                        Collectors.toList()
+//                ));
+//
+//        Map<Class<?>, List<SyntaxInfo>> unregisteredTypeClasses = unregisteredTypesMap.entrySet().stream()
+//                .filter(e -> typeManager.getTypeByClass(e.getKey()) == null)
+//                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+//
+//        if (!unregisteredTypeClasses.isEmpty()) {
+//            // found unregistered type; throw an exception
+//            StringBuilder sb = new StringBuilder("not all used types have been registered!\n");
+//            unregisteredTypeClasses.forEach((clazz, infos) -> {
+//                sb.append(clazz.getName()).append(" used by: ")
+//                        .append(infos.stream()
+//                                .map(Object::toString) // or customize how SyntaxInfo is represented
+//                                .collect(Collectors.joining(", ")))
+//                        .append("\n");
+//            });
+//            throw new IllegalStateException(sb.toString());
+//        }
     }
 
 
@@ -99,5 +100,14 @@ public class SyntaxManager {
         }
 
         return null;
+    }
+
+    @Nullable
+    public EventValue<?, ?> getEventValue(String name) {
+        return eventValues.get(name);
+    }
+
+    public Map<String, EventValue<?, ?>> getEventValues() {
+        return eventValues;
     }
 }

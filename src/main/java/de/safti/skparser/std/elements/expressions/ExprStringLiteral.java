@@ -1,5 +1,6 @@
 package de.safti.skparser.std.elements.expressions;
 
+import de.safti.skparser.SkriptParser;
 import de.safti.skparser.logging.SkriptLogger;
 import de.safti.skparser.pattern.PatternCompiler;
 import de.safti.skparser.pattern.SyntaxPattern;
@@ -39,7 +40,7 @@ public class ExprStringLiteral implements ExpressionHandler<String> {
     }
 
     @Override
-    public Class<String> typeClass() {
+    public Class<String> typeClass(SkriptParser parser, String raw) {
         return String.class;
     }
 }

@@ -8,29 +8,34 @@ import de.safti.skparser.runtime.arguments.Argument;
 import de.safti.skparser.syntaxes.ElementMetadata;
 import de.safti.skparser.syntaxes.SyntaxInfo;
 import de.safti.skparser.syntaxes.expression.ExpressionInfo;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SyntaxElement {
-    private final String raw;
-    private final SyntaxInfo info;
-    private final SkriptParser parser;
+    protected final SyntaxInfo info;
     protected final ElementMetadata metadata;
 
+    protected final String raw;
+    protected final SkriptParser parser;
 
-    public SyntaxElement(String raw, SyntaxInfo info, SkriptParser parser, SkriptLogger logger) {
+    private final StructureElement parent;
+
+    public SyntaxElement(String raw, SyntaxInfo info, SkriptParser parser, SkriptLogger logger, StructureElement parent) {
         this.raw = raw;
         this.info = info;
         this.parser = parser;
+        this.parent = parent;
 
 
         SyntaxPattern pattern = info.pattern();
 
         // collect arguments
         List<Argument<?>> arguments = new ArrayList<>();
-        List<TypeMatchNode> matchedTypeNodes = pattern.extractTypeMatches(raw, parser, logger);
+        List<TypeMatchNode> matchedTypeNodes = pattern.extractTypeMatches(this, parser, logger);
         for (TypeMatchNode typeMatch : matchedTypeNodes) {
             // Extract the raw substring matched for this type
 
@@ -50,6 +55,30 @@ public class SyntaxElement {
         metadata = new ElementMetadata(arguments, raw);
     }
 
+    @Nullable
+    public StructureElement getParent() {
+        return parent;
+    }
+
+    /**
+     * Returns the root {@link StructureElement}.
+     *
+     *
+     * @return the root {@link StructureElement}
+     */
+    @NotNull
+    public StructureElement findRoot() {
+        if (parent == null) {
+            // By contract, root elements are always StructureElement
+            return (StructureElement) this;
+        }
+
+        StructureElement current = parent;
+        while (current.getParent() != null) {
+            current = current.getParent();
+        }
+        return current;
+    }
     public SkriptParser getParser() {
         return parser;
     }
@@ -68,4 +97,5 @@ public class SyntaxElement {
     public ElementMetadata getMetadata() {
         return metadata;
     }
+
 }

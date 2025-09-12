@@ -18,7 +18,7 @@ public class Common {
         StandardSkript.register(loader, typeManager);
 
 
-        SyntaxManager syntaxManager = new SyntaxManager(loader, typeManager);
+        SyntaxManager syntaxManager = new SyntaxManager(loader);
 
         PARSER = new SkriptParser(syntaxManager, typeManager);
 

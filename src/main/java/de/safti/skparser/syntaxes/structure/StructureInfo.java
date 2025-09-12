@@ -3,6 +3,7 @@ package de.safti.skparser.syntaxes.structure;
 import de.safti.skparser.pattern.SyntaxPattern;
 import de.safti.skparser.syntaxes.SyntaxInfo;
 import de.safti.skparser.syntaxes.event.EventStructureElement;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -30,7 +31,7 @@ public class StructureInfo implements SyntaxInfo {
     }
 
     @Override
-    public SyntaxPattern pattern() {
+    public @NotNull SyntaxPattern pattern() {
         return pattern;
     }
 

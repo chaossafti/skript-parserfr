@@ -5,6 +5,7 @@ import de.safti.skparser.pattern.PatternNode;
 import de.safti.skparser.pattern.TypeMatchNode;
 import de.safti.skparser.pattern.match.MatchContext;
 import de.safti.skparser.pattern.match.SyntaxMatchResult;
+import de.safti.skparser.syntaxes.parsed.SyntaxElement;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -25,8 +26,8 @@ public class OptionalNode implements PatternNode {
     @Override
     public int matchAndCollectTypes(@NotNull String input, int startIndex,
                                     @NotNull List<TypeMatchNode> matches,
-                                    @NotNull MatchContext context, SkriptLogger logger) {
-        int nextIndex = inner.matchAndCollectTypes(input, startIndex, matches, context, logger);
+                                    @NotNull MatchContext context, SkriptLogger logger, SyntaxElement argumentHolder) {
+        int nextIndex = inner.matchAndCollectTypes(input, startIndex, matches, context, logger, argumentHolder);
         if (nextIndex == -1) {
             // skip if no match
             return startIndex;

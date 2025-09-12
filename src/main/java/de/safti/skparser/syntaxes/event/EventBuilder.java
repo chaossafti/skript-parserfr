@@ -12,13 +12,15 @@ import de.safti.skparser.syntaxes.parsed.SyntaxElement;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.function.Function;
 
-public class EventBuilder {
+public class EventBuilder<C extends TriggerContext> {
 
     private int priority;
     private SyntaxPattern pattern;
     private EventHandler eventHandler;
     private final Set<Class<? extends TriggerContext>> contextTypes = new HashSet<>();
+    private final Set<EventValue<?, C>> eventValues = new HashSet<>();
 
     private SyntaxInitHandler initHandler;
     private EventCheckHandler checkHandler;
@@ -27,45 +29,56 @@ public class EventBuilder {
     // Builder setters
     // ------------------------
 
-    public EventBuilder priority(int priority) {
+    public EventBuilder<C> priority(int priority) {
         this.priority = priority;
         return this;
     }
 
-    public EventBuilder pattern(SyntaxPattern pattern) {
+    public EventBuilder<C> pattern(SyntaxPattern pattern) {
         this.pattern = pattern;
         return this;
     }
 
-    public EventBuilder pattern(String pattern) {
+    public EventBuilder<C> pattern(String pattern) {
         this.pattern = PatternCompiler.compile(pattern);
         return this;
     }
 
-    public EventBuilder handler(EventHandler handler) {
+    public EventBuilder<C> handler(EventHandler handler) {
         this.eventHandler = handler;
         return this;
     }
 
-    public EventBuilder initHandler(SyntaxInitHandler initHandler) {
+    public EventBuilder<C> initHandler(SyntaxInitHandler initHandler) {
         this.initHandler = initHandler;
         return this;
     }
 
-    public EventBuilder checkHandler(EventCheckHandler checkHandler) {
+    public EventBuilder<C> checkHandler(EventCheckHandler checkHandler) {
         this.checkHandler = checkHandler;
         return this;
     }
 
-    public EventBuilder contextType(Class<? extends TriggerContext> contextType) {
+    public EventBuilder<C> contextType(Class<C> contextType) {
         this.contextTypes.add(contextType);
         return this;
     }
 
-    public EventBuilder contextTypes(Collection<Class<? extends TriggerContext>> contextTypes) {
+    public EventBuilder<C> contextTypes(Collection<Class<C>> contextTypes) {
         this.contextTypes.addAll(contextTypes);
         return this;
     }
+
+    public EventBuilder<C> eventValue(EventValue<?, C> eventValue) {
+        this.eventValues.add(eventValue);
+        return this;
+    }
+
+    public <T> EventBuilder<C> eventValue(String name, Class<T> valueClass, Class<C> contextClass, Function<C, T> valueGetter) {
+        return eventValue(new EventValue<>(name, valueClass, contextClass, valueGetter));
+    }
+
+
 
     // ------------------------
     // Build + Register
@@ -74,6 +87,12 @@ public class EventBuilder {
     public void register(SyntaxLoader loader) {
         EventInfo info = build();
         loader.registerStructure(info);
+
+
+        // register event values
+        for (EventValue<?, C> eventValue : eventValues) {
+            loader.registerEventValue(eventValue);
+        }
     }
 
     public EventInfo build() {
@@ -87,8 +106,13 @@ public class EventBuilder {
                 Objects.requireNonNullElseGet(this.checkHandler,
                         () -> (context, metadata) -> true);
 
+
+
         EventHandler handler = buildEventHandler(finalCheckHandler, finalInitHandler);
-        return new EventInfo(priority, pattern, handler, contextTypes);
+        // this is a safe cast; java generics are simply not good enough
+        // to understand that C extends TriggerContext
+        //noinspection unchecked
+        return new EventInfo(priority, pattern, handler, contextTypes, (Set<EventValue<?,?>>) (Object) eventValues);
     }
 
     private @NotNull EventHandler buildEventHandler(EventCheckHandler finalCheckHandler, SyntaxInitHandler finalInitHandler) {

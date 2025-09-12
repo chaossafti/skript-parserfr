@@ -1,2 +1,2 @@
 on load:
-	print "woah it loaded!"
+	print event-string

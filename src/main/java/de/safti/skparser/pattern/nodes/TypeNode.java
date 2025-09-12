@@ -38,7 +38,11 @@ public class TypeNode implements PatternNode {
 
         // extract non-null type
         ExpressionHandler<?> handler = expressionInfo.handler();
-        Type type = handler.type(parser);
+        // FIXME: print expects string, but we offer it an object
+        // 2 changes:
+        //  - make print take object
+        //  - make this parse safe somehow
+        Type type = handler.type(parser, ctx.getInput());
         // sanity check
         if(type == null) return SyntaxMatchResult.failure();
 
@@ -50,11 +54,14 @@ public class TypeNode implements PatternNode {
     }
 
     @Override
-    public int matchAndCollectTypes(@NotNull String input, int startIndex,
+    public int matchAndCollectTypes(@NotNull String input,
+                                    int startIndex,
                                     @NotNull List<TypeMatchNode> matches,
-                                    @NotNull MatchContext context, SkriptLogger logger) {
+                                    @NotNull MatchContext context, SkriptLogger logger,
+                                    SyntaxElement argumentHolder) {
 
-        SyntaxElement element = context.getParser().parseElement(input.substring(startIndex), logger);
+        // parse the argument as an expression
+        SyntaxElement element = context.getParser().parseElement(input.substring(startIndex), logger, argumentHolder.getParent());
         if (element != null) {
             int endIndex = startIndex + element.getRaw().length();
             matches.add(new TypeMatchNode(element, this, startIndex, endIndex));

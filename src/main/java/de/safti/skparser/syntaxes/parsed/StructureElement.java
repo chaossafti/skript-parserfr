@@ -9,11 +9,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public class StructureElement extends SyntaxElement {
-    private final List<SyntaxElement> body;
+    private List<SyntaxElement> body;
 
-    public StructureElement(String raw, StructureInfo info, List<SyntaxElement> body, SkriptParser parser, SkriptLogger logger) {
-        super(raw, info, parser, logger);
-        this.body = body;
+    public StructureElement(String raw, StructureInfo info, SkriptParser parser, SkriptLogger logger, StructureElement parent) {
+        super(raw, info, parser, logger, parent);
     }
 
     public void walk(TriggerContext context) {
@@ -27,5 +26,9 @@ public class StructureElement extends SyntaxElement {
 
     public List<SyntaxElement> getBody() {
         return body;
+    }
+
+    public void setBody(@NotNull List<SyntaxElement> bodyElements) {
+        this.body = bodyElements;
     }
 }

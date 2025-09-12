@@ -1,5 +1,6 @@
 package de.safti.skparser.syntaxes.expression;
 
+import de.safti.skparser.SkriptParser;
 import de.safti.skparser.bootstrap.SyntaxLoader;
 import de.safti.skparser.logging.SkriptLogger;
 import de.safti.skparser.pattern.PatternCompiler;
@@ -96,7 +97,7 @@ public class ExpressionBuilder<T> {
                 }
 
                 @Override
-                public Class<T> typeClass() {
+                public Class<T> typeClass(SkriptParser parser, String raw) {
                     return clazz;
                 }
 
@@ -110,6 +111,7 @@ public class ExpressionBuilder<T> {
                 }
             };
         }
+
 
         return new ExpressionInfo(priority, pattern, finalHandler);
     }

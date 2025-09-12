@@ -7,16 +7,17 @@ import de.safti.skparser.logging.errors.IllegalIndentionError;
 import de.safti.skparser.logging.errors.UnknownSyntaxError;
 import de.safti.skparser.pattern.match.SyntaxMatchResult;
 import de.safti.skparser.runtime.TriggerContext;
-import de.safti.skparser.std.TestContext;
+import de.safti.skparser.std.ConsoleAlertReceiver;
 import de.safti.skparser.std.elements.contexts.LoadContext;
 import de.safti.skparser.syntaxes.SyntaxInfo;
 import de.safti.skparser.syntaxes.SyntaxManager;
+import de.safti.skparser.syntaxes.event.EventInfo;
+import de.safti.skparser.syntaxes.event.EventStructureElement;
 import de.safti.skparser.syntaxes.parsed.SyntaxElement;
 import de.safti.skparser.syntaxes.parsed.StructureElement;
 import de.safti.skparser.syntaxes.structure.StructureInfo;
-import de.safti.skparser.syntaxes.structure.UninitializedStructure;
 import de.safti.skparser.types.TypeManager;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,13 +36,14 @@ public class SkriptParser {
     private final TypeManager typeManager;
     private final SkriptEventManager eventManager = new SkriptEventManager();
 
+
     public SkriptParser(SyntaxManager syntaxManager, TypeManager typeManager) {
         this.syntaxManager = syntaxManager;
         this.typeManager = typeManager;
     }
 
     // --------------------------
-    // Public API
+    // public api
     // --------------------------
 
     public Script parseScript(Path path) {
@@ -62,8 +64,8 @@ public class SkriptParser {
                         structureElement.walk(context);
                     });
 
-            // TEST
-            eventManager.call(new TestContext());
+            // log - TODO: be able to log somewhere else
+            logger.flush(new ConsoleAlertReceiver());
 
             loadedScripts.put(path, script);
             return script;
@@ -82,106 +84,92 @@ public class SkriptParser {
     }
 
     // --------------------------
-    // Root-level structure parsing
+    // parse root structures
     // --------------------------
 
-    private List<StructureElement> parseRootStructures(List<String> lines, SkriptLogger logger) {
-        // TODO: cleanup
-
+    private @NotNull List<StructureElement> parseRootStructures(@NotNull List<String> lines, SkriptLogger logger) {
         List<StructureElement> structures = new ArrayList<>();
-        StructureInfo currentStructure = null;
-        String structureLine = null;
-        SyntaxManager.StructureParseResult structureParseResult = null;
 
+        StructureInfo currentStructureInfo = null;
+        SyntaxManager.StructureParseResult currentParseResult = null;
+        String currentLine = null;
         List<String> currentBodyLines = new ArrayList<>();
 
         for (String s : lines) {
             String line = s.stripTrailing();
-            if(line.isBlank()) continue;
+            if (line.isBlank()) continue;
 
+            // get indent; error and break if mix of spaces and tabs
             OptionalInt indentOpt = countIndent(s);
-            if(indentOpt.isEmpty()) {
-                // matches all trailing spaces and tabs.
-                String indentionDebugString = s.replaceAll(".*?(\\s*)$", "$1")
-                        .replace(" ", "_")
-                        .replace("\t", "->");
-
-                logger.alert(new IllegalIndentionError(indentionDebugString));
+            if (indentOpt.isEmpty()) {
+                String debugIndent = s.replaceAll(".*?(\\s*)$", "$1").replace(" ", "_").replace("\t", "->");
+                logger.alert(new IllegalIndentionError(debugIndent));
                 continue;
             }
 
             int indent = indentOpt.getAsInt();
 
-            if(indent == 0) {
-                // build previous structure
-                if(currentStructure != null) {
-                    StructureElement struct = buildStructure(structureParseResult, structureLine, currentBodyLines, logger);
-                    // buildStructure has already logged
-                    if(struct != null)
-                        structures.add(struct);
-                }
+            boolean isRoot = indent == 0;
+            if (isRoot) {
+                // Finalize previous structure
+                finalizeRootStructure(structures, currentStructureInfo, currentParseResult, currentLine, currentBodyLines, logger);
 
-                // try to parse a structure
-                structureParseResult = syntaxManager.matchStructure(line, this);
-                if(!structureParseResult.syntaxMatchResult().isSuccess() || structureParseResult.structure() == null) {
+                // Start new root structure
+                currentParseResult = syntaxManager.matchStructure(line, this);
+                if (!currentParseResult.syntaxMatchResult().isSuccess() || currentParseResult.structure() == null) {
                     logger.alert(new UnknownSyntaxError("Unknown structure: " + line.strip()));
+                    currentStructureInfo = null;
+                    currentBodyLines.clear();
                     continue;
                 }
 
-                currentStructure = structureParseResult.structure();
-                structureLine = line;
-
-
+                currentStructureInfo = currentParseResult.structure();
+                currentLine = line;
                 currentBodyLines = new ArrayList<>();
-            } else if(currentStructure != null) {
+            } else if (currentStructureInfo != null) {
                 currentBodyLines.add(line);
             } else {
                 logger.alert(new CodeOutsideOfTriggerError(line.strip()));
             }
         }
 
-        // add last structure
-        if(currentStructure != null) {
-            StructureElement struct = buildStructure(structureParseResult, structureLine, currentBodyLines, logger);
-            // buildStructure has already logged
-            if(struct != null)
-                structures.add(struct);
-        }
+        // finalize last structure
+        finalizeRootStructure(structures, currentStructureInfo, currentParseResult, currentLine, currentBodyLines, logger);
 
         return structures;
     }
 
-    @Nullable
-    private StructureElement buildStructure(SyntaxManager.StructureParseResult parseResult, String raw, List<String> bodyLines, SkriptLogger logger) {
-        // parse the body of the structure
-        List<SyntaxElement> elements = parseBlock(bodyLines, logger);
+    private void finalizeRootStructure(
+            List<StructureElement> structures,
+            StructureInfo structureInfo,
+            SyntaxManager.StructureParseResult parseResult,
+            String line,
+            List<String> bodyLines,
+            SkriptLogger logger
+    ) {
+        if (structureInfo == null || parseResult == null || line == null) return;
 
-        // initialize structure
-        UninitializedStructure struct = new UninitializedStructure(raw, parseResult.structure(), elements);
-        try {
-            return struct.initialize(this, parseResult.syntaxMatchResult().getContext(), logger);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to initialize structure: " + raw, e);
+        StructureElement root;
+        // TODO: make EventStructureElement also use StructureElement
+        if(structureInfo instanceof EventInfo eventInfo) {
+            root = new EventStructureElement(line, eventInfo, this, logger, null);
+        } else {
+            root = new StructureElement(line, structureInfo, this, logger, null);
         }
-    }
 
-    // --------------------------
-    // Parsing a block of code lines
-    // --------------------------
+        List<SyntaxElement> bodyElements = new ArrayList<>();
+        for (String bodyLine : bodyLines) {
+            SyntaxElement element = parseElement(bodyLine, logger, root);
 
-    private List<SyntaxElement> parseBlock(List<String> lines, SkriptLogger logger) {
-        List<SyntaxElement> elements = new ArrayList<>();
-        for (String line : lines) {
-            SyntaxElement element = parseElement(line, logger);
-            if(element == null) {
-                // parseElement has already logged more informing error messages
-                continue;
+            if (element != null) {
+                bodyElements.add(element);
             }
-
-
-            elements.add(element);
         }
-        return elements;
+
+        root.setBody(bodyElements);
+
+        boolean success = structureInfo.handler().init(parseResult.syntaxMatchResult().getContext(), logger, root, root.getMetadata());
+        if (success) structures.add(root);
     }
 
     // --------------------------
@@ -193,7 +181,7 @@ public class SkriptParser {
      * It finds the SyntaxInfo from the {@link #syntaxManager} and creates a new SyntaxElement instance with it.
      * Calls the init method afterward
      */
-    public SyntaxElement parseElement(String raw, SkriptLogger logger) {
+    public SyntaxElement parseElement(String raw, SkriptLogger logger, StructureElement parent) {
         // parse
         SyntaxManager.ElementParseResult elementParseResult = syntaxManager.parseElement(raw, this);
         if(elementParseResult == null) {
@@ -211,15 +199,19 @@ public class SkriptParser {
         }
 
         // initialize the element
-        SyntaxElement element = new SyntaxElement(raw, elementInfo, this, logger);
+        SyntaxElement element = new SyntaxElement(raw, elementInfo, this, logger, parent);
+
         boolean success = elementInfo.handler().init(matchResult.getContext(), logger, element, element.getMetadata());
-        if(!success) return null;
+        if(!success) {
+            // TODO: make sure something was logged
+            return null;
+        }
 
         return element;
     }
 
     // --------------------------
-    // Helpers
+    // helpers
     // --------------------------
 
     private OptionalInt countIndent(String line) {
@@ -239,6 +231,11 @@ public class SkriptParser {
         if(spaces % 4 != 0) return OptionalInt.empty();
         return OptionalInt.of(spaces / 4);
     }
+
+
+    // --------------------------
+    // getters
+    // --------------------------
 
     public SyntaxManager getSyntaxManager() {
         return syntaxManager;

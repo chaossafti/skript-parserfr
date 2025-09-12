@@ -1,6 +1,7 @@
 package de.safti.skparser.std;
 
 import de.safti.skparser.bootstrap.SyntaxLoader;
+import de.safti.skparser.std.elements.expressions.ExprEventValue;
 import de.safti.skparser.std.elements.expressions.ExprStringLiteral;
 import de.safti.skparser.syntaxes.effects.EffectInfo;
 import de.safti.skparser.syntaxes.event.EventInfo;
@@ -21,17 +22,6 @@ public class StandardSkript {
                 .register(loader);
 
         /*
-         * EVENTS
-         */
-
-
-
-        EventInfo.eventBuilder()
-                .pattern("on test")
-                .contextType(TestContext.class)
-                .register(loader);
-
-        /*
          * LITERALS
          */
 
@@ -42,13 +32,25 @@ public class StandardSkript {
 
 
         /*
+         * EXPRESSIONS
+         */
+
+        ExpressionInfo.builder(Object.class)
+                .pattern(ExprEventValue.PATTERN)
+                .handler(new ExprEventValue())
+                .register(loader);
+
+
+        /*
          * EFFECTS
          */
 
         EffectInfo.builder()
                 .pattern("print %string%")
                 .initHandler((context, logger, element, metadata) -> true)
-                .effectExecuteHandler((context, metadata) -> System.out.println(metadata.evaluateArgument(0, context, String.class)))
+                .effectExecuteHandler((context, metadata) -> {
+                    System.out.println(metadata.evaluateArgument(0, context, String.class));
+                })
                 .register(loader);
 
         /*
@@ -56,6 +58,7 @@ public class StandardSkript {
          */
 
         typeManager.register(String.class, "string", "string");
+        typeManager.register(Object.class, "object", "object");
 
 
     }

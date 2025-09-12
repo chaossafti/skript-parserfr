@@ -5,8 +5,10 @@ import de.safti.skparser.logging.SkriptLogger;
 import de.safti.skparser.pattern.match.MatchContext;
 import de.safti.skparser.pattern.match.SyntaxMatchResult;
 import de.safti.skparser.pattern.nodes.SequenceNode;
+import de.safti.skparser.syntaxes.parsed.SyntaxElement;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +46,8 @@ public class SyntaxPattern {
         return root.matches(input, new MatchContext(parser, isRoot, input));
     }
 
-    public List<TypeMatchNode> extractTypeMatches(@NotNull String input, @NotNull SkriptParser parser, SkriptLogger logger) {
+    public List<TypeMatchNode> extractTypeMatches(SyntaxElement element, @NotNull SkriptParser parser, SkriptLogger logger) {
+        String input = element.getRaw();
         boolean isRoot = !input.startsWith("\t") && !input.startsWith("    ");
 
         input = input.strip(); // remove leading/trailing spaces
@@ -52,7 +55,7 @@ public class SyntaxPattern {
         MatchContext context = new MatchContext(parser, isRoot, input);
 
         // Walk the root node recursively
-        root.matchAndCollectTypes(input, 0, matches, context, logger);
+        root.matchAndCollectTypes(input, 0, matches, context, logger, element);
 
         return matches;
     }
